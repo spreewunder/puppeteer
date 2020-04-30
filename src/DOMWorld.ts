@@ -359,6 +359,10 @@ export class DOMWorld {
     return this._waitForSelectorOrXPath(xpath, true, options);
   }
 
+  waitForDeepSelector(selector: string, options: WaitForSelectorOptions): Promise<ElementHandle | null> {
+    return this._waitForDeepSelector(selector, options);
+  }
+
   waitForFunction(pageFunction: Function | string, options: {polling?: string | number; timeout?: number} = {}, ...args: unknown[]): Promise<JSHandle> {
     const {
       polling = 'raf',
@@ -369,6 +373,57 @@ export class DOMWorld {
 
   async title(): Promise<string> {
     return this.evaluate(() => document.title);
+  }
+
+  private async _waitForDeepSelector(selector: string, options: WaitForSelectorOptions = {}): Promise<ElementHandle | null> {
+    const {
+      visible: waitForVisible = false,
+      hidden: waitForHidden = false,
+      timeout = this._timeoutSettings.timeout(),
+    } = options;
+    const polling = waitForVisible || waitForHidden ? 'raf' : 'mutation';
+    const title = `$deepSelector "${selector}"${waitForHidden ? ' to be hidden' : ''}`;
+    const waitTask = new WaitTask(this, deepPredicate, title, polling, timeout, selector, false, waitForVisible, waitForHidden);
+    const handle = await waitTask.promise;
+    if (!handle.asElement()) {
+      await handle.dispose();
+      return null;
+    }
+    return handle.asElement();
+
+    function deepQuerySelect(selector): Node | null {
+      const selectorParts = selector.replace(new RegExp('//', 'g'), '%split%//%split%').split('%split%').map(sel => sel.trim());
+      let rootNode: any = document; // TODO: What's the shared type of shadowRoot and document?
+      let i = 0;
+      while (rootNode && i < selectorParts.length) {
+        const currentSelector = selectorParts[i];
+        if (currentSelector === '//')
+          rootNode = rootNode.shadowRoot;
+        else if (selector)
+          rootNode = rootNode.querySelector(currentSelector);
+        ++i;
+      }
+      return rootNode !== document ? rootNode : null;
+    }
+
+    function deepPredicate(selector: string, unusedPlaceholderParameter: boolean, waitForVisible: boolean, waitForHidden: boolean): Node | null | boolean {
+      const node = deepQuerySelect(selector);
+      if (!node)
+        return waitForHidden;
+      if (!waitForVisible && !waitForHidden)
+        return node;
+      const element = (node.nodeType === Node.TEXT_NODE ? node.parentElement : node as Element);
+
+      const style = window.getComputedStyle(element);
+      const isVisible = style && style.visibility !== 'hidden' && hasVisibleBoundingBox();
+      const success = (waitForVisible === isVisible || waitForHidden === !isVisible);
+      return success ? node : null;
+
+      function hasVisibleBoundingBox(): boolean {
+        const rect = element.getBoundingClientRect();
+        return !!(rect.top || rect.bottom || rect.width || rect.height);
+      }
+    }
   }
 
   private async _waitForSelectorOrXPath(selectorOrXPath: string, isXPath: boolean, options: WaitForSelectorOptions = {}): Promise<ElementHandle | null> {

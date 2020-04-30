@@ -1148,6 +1148,10 @@ class Page extends EventEmitter {
     return this.mainFrame().waitForSelector(selector, options);
   }
 
+  waitForDeepSelector(selector, options = {}) {
+    return this.mainFrame().waitForDeepSelector(selector, options);
+  }
+
   /**
    * @param {string} xpath
    * @param {!{visible?: boolean, hidden?: boolean, timeout?: number}=} options

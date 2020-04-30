@@ -459,6 +459,16 @@ export class Frame {
     return result;
   }
 
+  async waitForDeepSelector(selector: string, options: WaitForSelectorOptions): Promise<ElementHandle | null> {
+    const handle = await this._secondaryWorld.waitForDeepSelector(selector, options);
+    if (!handle)
+      return null;
+    const mainExecutionContext = await this._mainWorld.executionContext();
+    const result = await mainExecutionContext._adoptElementHandle(handle);
+    await handle.dispose();
+    return result;
+  }
+
   async waitForXPath(xpath: string, options: WaitForSelectorOptions): Promise<ElementHandle | null> {
     const handle = await this._secondaryWorld.waitForXPath(xpath, options);
     if (!handle)
