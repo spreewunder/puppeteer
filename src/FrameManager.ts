@@ -460,8 +460,7 @@ export class Frame {
   }
 
   async waitForDeepSelector(selector: string, options: WaitForSelectorOptions): Promise<ElementHandle | null> {
-    //const handle = await this._secondaryWorld.waitForDeepSelector(selector, options);
-    const handle = await this._secondaryWorld.waitForSelector(selector, options);
+    const handle = await this._secondaryWorld.waitForDeepSelector(selector, options);
     if (!handle)
       return null;
     const mainExecutionContext = await this._mainWorld.executionContext();

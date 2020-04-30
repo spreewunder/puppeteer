@@ -360,8 +360,7 @@ export class DOMWorld {
   }
 
   waitForDeepSelector(selector: string, options: WaitForSelectorOptions): Promise<ElementHandle | null> {
-    //return this._waitForDeepSelector(selector, options);
-    return this._waitForSelectorOrXPath(selector, false, options);
+    return this._waitForDeepSelector(selector, options);
   }
 
   waitForFunction(pageFunction: Function | string, options: {polling?: string | number; timeout?: number} = {}, ...args: unknown[]): Promise<JSHandle> {
