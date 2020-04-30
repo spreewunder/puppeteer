@@ -391,21 +391,6 @@ export class DOMWorld {
     }
     return handle.asElement();
 
-    function deepQuerySelect(selector): Node | null {
-      const selectorParts = selector.replace(new RegExp('//', 'g'), '%split%//%split%').split('%split%').map(sel => sel.trim());
-      let rootNode: any = document; // TODO: What's the shared type of shadowRoot and document?
-      let i = 0;
-      while (rootNode && i < selectorParts.length) {
-        const currentSelector = selectorParts[i];
-        if (currentSelector === '//')
-          rootNode = rootNode.shadowRoot;
-        else if (selector)
-          rootNode = rootNode.querySelector(currentSelector);
-        ++i;
-      }
-      return rootNode !== document ? rootNode : null;
-    }
-
     function deepPredicate(selector: string, unusedPlaceholderParameter: boolean, waitForVisible: boolean, waitForHidden: boolean): Node | null | boolean {
       const node = deepQuerySelect(selector);
       if (!node)
@@ -423,6 +408,22 @@ export class DOMWorld {
         const rect = element.getBoundingClientRect();
         return !!(rect.top || rect.bottom || rect.width || rect.height);
       }
+
+      function deepQuerySelect(selector): Node | null {
+        const selectorParts = selector.replace(new RegExp('//', 'g'), '%split%//%split%').split('%split%').map(sel => sel.trim());
+        let rootNode: any = document; // TODO: What's the shared type of shadowRoot and document?
+        let i = 0;
+        while (rootNode && i < selectorParts.length) {
+          const currentSelector = selectorParts[i];
+          if (currentSelector === '//')
+            rootNode = rootNode.shadowRoot;
+          else if (selector)
+            rootNode = rootNode.querySelector(currentSelector);
+          ++i;
+        }
+        return rootNode !== document ? rootNode : null;
+      }
+
     }
   }
 
