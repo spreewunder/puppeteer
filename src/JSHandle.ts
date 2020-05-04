@@ -439,27 +439,23 @@ export class ElementHandle extends JSHandle {
   }
 
   async deep$(selector: string): Promise<ElementHandle | null> {
-    const handle = await this.evaluateHandle(
-      (element, selector) => {
-        return deepQuerySelect(selector, element);
-
-        function deepQuerySelect(deepSelector, element): Node | null {
-          const selectorParts = deepSelector.replace(new RegExp('//', 'g'), '%split%//%split%').split('%split%').map(sel => sel.trim());
-          let rootNode: any = element; // TODO: What's the shared type of shadowRoot and document?
-          let i = 0;
-          while (rootNode && i < selectorParts.length) {
-            const currentSelector = selectorParts[i];
-            if (currentSelector === '//')
-              rootNode = rootNode.shadowRoot;
-            else if (deepSelector)
-              rootNode = rootNode.querySelector(currentSelector);
-            ++i;
-          }
-          return rootNode !== document ? rootNode : null;
+    const handle = await this.evaluateHandle((element, selector) => {
+      return deepQuerySelect(selector, element);
+      function deepQuerySelect(deepSelector, element): Node | null {
+        const selectorParts = deepSelector.replace(new RegExp('//', 'g'), '%split%//%split%').split('%split%').map(sel => sel.trim());
+        let rootNode: any = element; // TODO: What's the shared type of shadowRoot and document?
+        let i = 0;
+        while (rootNode && i < selectorParts.length) {
+          const currentSelector = selectorParts[i];
+          if (currentSelector === '//')
+            rootNode = rootNode.shadowRoot;
+          else if (deepSelector)
+            rootNode = rootNode.querySelector(currentSelector);
+          ++i;
         }
-
-      }, selector
-    );
+        return rootNode !== document ? rootNode : null;
+      }
+    }, selector);
     const element = handle.asElement();
     if (element)
       return element;
