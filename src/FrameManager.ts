@@ -357,6 +357,10 @@ export class Frame {
     return this._mainWorld.$(selector);
   }
 
+  async deep$(selector) {
+    return this._mainWorld.deep$(selector);
+  }
+
   async $x(expression: string): Promise<ElementHandle[]> {
     return this._mainWorld.$x(expression);
   }

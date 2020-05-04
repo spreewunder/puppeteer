@@ -329,6 +329,10 @@ class Page extends EventEmitter {
     return this.mainFrame().$(selector);
   }
 
+  async deep$(selector) {
+    return this.mainFrame().deep$(selector);
+  }
+
   /**
    * @param {Function|string} pageFunction
    * @param {!Array<*>} args

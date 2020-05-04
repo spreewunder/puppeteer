@@ -121,6 +121,12 @@ export class DOMWorld {
     return value;
   }
 
+  async deep$(selector: string): Promise<ElementHandle | null> {
+    const document = await this._document();
+    const value = await document.deep$(selector);
+    return value;
+  }
+
   async _document(): Promise<ElementHandle> {
     if (this._documentPromise)
       return this._documentPromise;

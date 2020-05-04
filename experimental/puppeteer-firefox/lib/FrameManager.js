@@ -381,6 +381,10 @@ class Frame {
     return this._mainWorld.$(selector);
   }
 
+  async deep$(selector) {
+    return this._mainWorld.deep$(selector);
+  }
+
   /**
    * @param {string} selector
    * @return {!Promise<!Array<!ElementHandle>>}
