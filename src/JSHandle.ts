@@ -440,7 +440,7 @@ export class ElementHandle extends JSHandle {
 
   async deep$(selector: string): Promise<ElementHandle | null> {
     const handle = await this.evaluateHandle(
-      (element, selector) => {
+      (element, sel) => {
         return deepQuerySelect(selector, element);
 
         function deepQuerySelect(deepSelector, element): Node | null {
