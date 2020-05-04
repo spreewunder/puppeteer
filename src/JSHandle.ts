@@ -458,7 +458,7 @@ export class ElementHandle extends JSHandle {
           return rootNode !== document ? rootNode : null;
         }
 
-      }
+      }, selector
     );
     const element = handle.asElement();
     if (element)
